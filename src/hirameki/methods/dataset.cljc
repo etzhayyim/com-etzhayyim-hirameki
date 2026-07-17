@@ -1,0 +1,62 @@
+(ns hirameki.methods.dataset
+  "Deterministic patent corpus materialization into the independent dataset repository."
+  (:require [hirameki.methods.analyze :as a]
+            [hirameki.methods.cid :as cid]
+            #?(:clj [hirameki.methods.hirameki-edn :as he])
+            #?(:clj [clojure.java.io :as io])
+            #?(:clj [clojure.pprint :as pprint])))
+
+(def corpus-file "hirameki-patents.corpus.kotoba.edn")
+(def datoms-file "hirameki-patents.datoms.kotoba.edn")
+
+(defn- normalize-patent [p]
+  ;; Preserve the source map's stable EDN field order; omit actor-only classification/notes.
+  (dissoc p :type :note))
+
+(defn corpus-edn [patents]
+  #?(:clj (with-out-str
+            (pprint/pprint (->> patents (map normalize-patent) (sort-by :id) vec)))
+     :cljs (str (pr-str (->> patents (map normalize-patent) (sort-by :id) vec)) "\n")))
+
+(defn corpus-datoms-edn [patents]
+  #?(:clj (with-out-str
+            (pprint/pprint (vec (a/datoms (a/analyze {:fields [] :patents (vec patents)})))))
+     :cljs (str (pr-str (vec (a/datoms (a/analyze {:fields [] :patents (vec patents)})))) "\n")))
+
+(defn materialize [patents]
+  (let [c (corpus-edn patents) d (corpus-datoms-edn patents)]
+    {:corpus {:file corpus-file :content c :bytes (count (.getBytes ^String c "UTF-8")) :cid (cid/cidv1-raw c)}
+     :datoms {:file datoms-file :content d :bytes (count (.getBytes ^String d "UTF-8")) :cid (cid/cidv1-raw d)}}))
+
+(defn publish-manifest [mat as-of]
+  {:actor :hirameki
+   :adr "2606212200"
+   :published-at as-of
+   :scope :public-patent-bibliographic-metadata
+   :artifacts (into {} (map (fn [[k v]] [k (select-keys v [:file :bytes :cid])]) mat))
+   :single-block (into {} (map (fn [[k v]] [k (< (:bytes v) cid/single-block-limit)]) mat))
+   :verify "bb verify"
+   :canonical-format :edn})
+
+#?(:clj
+   (defn write! [patents data-dir as-of]
+     (when-not (seq data-dir)
+       (throw (ex-info "dataset repository path required via argument or HIRAMEKI_DATASET_REPO" {})))
+     (let [mat (materialize patents) dir (io/file data-dir) man (publish-manifest mat as-of)]
+       (io/make-parents (io/file dir "x"))
+       (doseq [[_ {:keys [file content]}] mat] (spit (io/file dir file) content))
+       (spit (io/file dir "publish-manifest.edn") (str (pr-str man) "\n"))
+       man)))
+
+#?(:clj
+   (defn -main [& args]
+     (let [seed (or (first args) "kotoba/seed.edn")
+           data-dir (or (second args) (System/getenv "HIRAMEKI_DATASET_REPO"))
+           as-of (or (nth args 2 nil) "manual")
+           man (write! (he/patents seed) data-dir as-of)]
+       (doseq [kind [:corpus :datoms]]
+         (println (str (name kind) " -> " data-dir "/" (get-in man [:artifacts kind :file])
+                       " cid=" (get-in man [:artifacts kind :cid])))))))
+
+#?(:clj (when (= *file* (System/getProperty "babashka.file"))
+          (apply -main *command-line-args*)))

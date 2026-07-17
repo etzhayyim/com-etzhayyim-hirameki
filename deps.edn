@@ -1,0 +1,10 @@
+{:paths ["src" "test" "."]
+ :deps {com.junkawasaki/multiformats-clj
+        {:git/url "https://github.com/com-junkawasaki/multiformats-clj.git"
+         :git/sha "0f4ed68ff9e3cbf069569d897c9304713a14036c"}
+        com.etzhayyim/kotoba-datom
+        {:git/url "https://github.com/etzhayyim/com-etzhayyim-kotoba-datom"
+         :git/sha "3c4b3b92234e59ba285119fd8b2ca4c2ee172ff8"}
+        com.etzhayyim/social-publication
+        {:git/url "https://github.com/etzhayyim/com-etzhayyim-social-publication"
+         :git/sha "e8127d0661284b1c12ce1b216c84b5ed2db619ab"}}}
