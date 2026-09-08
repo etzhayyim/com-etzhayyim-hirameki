@@ -27,7 +27,7 @@
   shape. The exact JSON field names must be VERIFIED against the live response on the first
   keyed run (the fixture encodes the documented shape); `ingest!` prints a sample so a
   mismatch is caught immediately rather than silently mis-mapped."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [hirameki.methods.analyze :as a]
             [hirameki.methods.dataset :as ds]
             #?(:clj [hirameki.methods.hirameki-edn :as he])
@@ -43,7 +43,7 @@
   "Normalize an organization name → a stable keyword (org only; never a person)."
   [s]
   (when (and s (not (str/blank? s)))
-    (-> s str/lower-case str/trim
+    (-> s str/lower str/trim
         (str/replace #"[,\.]" "")
         (str/replace #"\b(inc|incorporated|corp|corporation|co|ltd|limited|llc|gmbh|kk|kabushiki kaisha|ag|sa|plc|nv|oyj|ab)\b" "")
         str/trim
@@ -59,7 +59,7 @@
   (when-let [m (and s (re-find #"(\d{4})" s))] (parse-long (second m))))
 
 (defn- odp-status->status [s]
-  (let [d (some-> s str/lower-case)]
+  (let [d (some-> s str/lower)]
     (cond
       (nil? d) :pending
       (re-find #"patent(ed)?|granted|issue" d) :granted

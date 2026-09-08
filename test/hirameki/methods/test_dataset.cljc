@@ -1,6 +1,6 @@
 (ns hirameki.methods.test-dataset
   (:require [clojure.test :refer [deftest is run-tests]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [hirameki.methods.hirameki-edn :as he]
             [hirameki.methods.cid :as cid]
             [hirameki.methods.dataset :as ds]))
