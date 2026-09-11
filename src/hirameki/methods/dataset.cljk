@@ -35,7 +35,7 @@
    :scope :public-patent-bibliographic-metadata
    :artifacts (into {} (map (fn [[k v]] [k (select-keys v [:file :bytes :cid])]) mat))
    :single-block (into {} (map (fn [[k v]] [k (< (:bytes v) cid/single-block-limit)]) mat))
-   :verify "bb verify"
+   :verify "kbb -M:verify"
    :canonical-format :edn})
 
 #?(:clj
