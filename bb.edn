@@ -1,5 +1,10 @@
 {:paths ["src" "test" "."]
- :deps {com.junkawasaki/multiformats-clj
+ :deps {
+        ;; kotoba.lang.edn replaced clojure.edn here (2026-09-23). An explicit floor:
+        ;; tools.deps takes the NEWEST sha it is shown, and kbb resolves git deps
+        ;; only from nbb.edn, so every project file this repo has names it.
+        io.github.kotoba-lang/edn {:git/sha "79dba32c8892058842c57783f06a2dfe4601aeb0"}
+       com.junkawasaki/multiformats-clj
         {:git/url "https://github.com/com-junkawasaki/multiformats-clj.git"
          :git/sha "0f4ed68ff9e3cbf069569d897c9304713a14036c"}
         com.etzhayyim/kotoba-datom
