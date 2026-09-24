@@ -33,7 +33,7 @@
             #?(:clj [hirameki.methods.hirameki-edn :as he])
             #?(:clj [cheshire.core :as json])
             #?(:clj [babashka.http-client :as http])
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [kotoba.io :as io])))
 
 (def odp-base "https://api.uspto.gov/api/v1/patent/applications/search")
 (def odp-record-url "https://data.uspto.gov/patent/application")
