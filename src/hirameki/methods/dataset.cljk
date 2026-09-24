@@ -1,9 +1,9 @@
 (ns hirameki.methods.dataset
   "Deterministic patent corpus materialization into the independent dataset repository."
-  (:require [hirameki.methods.analyze :as a]
+  (:require [kotoba.bytes :as kbytes] [hirameki.methods.analyze :as a]
             [hirameki.methods.cid :as cid]
             #?(:clj [hirameki.methods.hirameki-edn :as he])
-            #?(:clj [clojure.java.io :as io])
+            #?(:clj [kotoba.io :as io])
             #?(:clj [clojure.pprint :as pprint])))
 
 (def corpus-file "hirameki-patents.corpus.kotoba.edn")
@@ -25,8 +25,8 @@
 
 (defn materialize [patents]
   (let [c (corpus-edn patents) d (corpus-datoms-edn patents)]
-    {:corpus {:file corpus-file :content c :bytes (count (.getBytes ^String c "UTF-8")) :cid (cid/cidv1-raw c)}
-     :datoms {:file datoms-file :content d :bytes (count (.getBytes ^String d "UTF-8")) :cid (cid/cidv1-raw d)}}))
+    {:corpus {:file corpus-file :content c :bytes (count (kbytes/utf8-bytes ^String c)) :cid (cid/cidv1-raw c)}
+     :datoms {:file datoms-file :content d :bytes (count (kbytes/utf8-bytes ^String d)) :cid (cid/cidv1-raw d)}}))
 
 (defn publish-manifest [mat as-of]
   {:actor :hirameki
