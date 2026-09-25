@@ -12,7 +12,7 @@
   (:require [hirameki.methods.analyze :as a]
             [hirameki.methods.kotoba :as k]
             #?(:clj [hirameki.methods.hirameki-edn :as he])
-            #?(:clj [clojure.java.io :as io])
+            #?(:clj [kotoba.io :as io])
             #?(:clj [kotoba.lang.edn :as edn])))
 
 (defn beat
@@ -44,7 +44,7 @@
    (defn -main [& args]
      (let [seed (or (first args) "kotoba/seed.edn")
            log-path (or (second args)
-                        (-> (io/file *file*) .getParentFile .getParentFile
+                        (-> (io/file *file*) io/parent-file io/parent-file
                             (io/file "data" "persisted" "hirameki.observations.kotoba.edn") str))
            rows (he/classify (he/load-edn seed))
            r (beat {:rows rows :tx-id "hirameki-beat-manual" :as-of "manual" :log-path log-path})]
